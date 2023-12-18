@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/MarcosMrod/go-api/internal/api"
-	"github.com/MarcosMrod/go-api/pkg/config"
+	"github.com/MarcosMRod/go-api/internal/api"
+	"github.com/MarcosMRod/go-api/internal/pokemon"
+	"github.com/MarcosMRod/go-api/pkg/config"
 	"github.com/gorilla/mux"
 )
 
@@ -17,20 +18,22 @@ func main() {
         log.Fatalf("Error loading config: %v", err)
     }
 
-    // Create a new router
-    router := mux.NewRouter()
+		pokemonService := pokemon.NewService()
+		// Initialize API handlers
+		apiHandler := api.NewHandler(*pokemonService)
+		// Create a new router
+		router := mux.NewRouter()
+		apiHandler.RegisterRoutes(router)
+		router.HandleFunc("/pokemon/typecounts", apiHandler.GetPokemonTypeCounts).Methods("GET")
 
-    // Initialize API handlers
-    apiHandler := api.NewHandler()
-    apiHandler.RegisterRoutes(router)
 
-    // Configure the server
-    srv := &http.Server{
-        Handler:      router,
-        Addr:         cfg.ServerAddress,
-        WriteTimeout: 15 * time.Second,
-        ReadTimeout:  15 * time.Second,
-    }
+		// Configure the server
+		srv := &http.Server{
+			Handler:      router,
+			Addr:         cfg.ServerAddress,
+			WriteTimeout: 15 * time.Second,
+			ReadTimeout:  15 * time.Second,
+		}
 
     // Start the server
     log.Printf("Starting server on %s", cfg.ServerAddress)

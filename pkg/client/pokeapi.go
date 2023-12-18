@@ -1,11 +1,12 @@
 package client
 
 import (
-	"MyGoProject/internal/pokemon"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/MarcosMRod/go-api/internal/pokemon"
 )
 
 // PokeAPIClient is a client for interacting with the PokeAPI

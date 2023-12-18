@@ -23,6 +23,7 @@ func NewHandler(pokemonService pokemon.Service) *Handler {
 
 // RegisterRoutes sets up the routes for the HTTP server
 func (h *Handler) RegisterRoutes(router *mux.Router) {
+    router.HandleFunc("/pokemon/typecounts", h.GetPokemonTypeCounts).Methods("GET")
     router.HandleFunc("/pokemon/{id}", h.GetPokemon).Methods("GET")
 }
 
@@ -48,6 +49,24 @@ func (h *Handler) GetPokemon(w http.ResponseWriter, r *http.Request) {
     }
 
     jsonResponse, err := json.Marshal(pokemon)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
+    w.Write(jsonResponse)
+}
+
+func (h *Handler) GetPokemonTypeCounts(w http.ResponseWriter, r *http.Request) {
+    typeCounts, err := h.PokemonService.GetPokemonTypeCounts()
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    jsonResponse, err := json.Marshal(typeCounts)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
